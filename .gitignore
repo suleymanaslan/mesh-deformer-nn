@@ -123,3 +123,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+meshes/
+deformed_meshes/
+data/
+trained_models/
