@@ -47,13 +47,14 @@ def render_obj(verts, faces, distance, elevation, azimuth):
     return phong_renderer(meshes_world=cur_mesh, R=R, T=T).cpu().numpy()
 
 
-def get_model_names(folder_path):
+def get_model_names(folder_path, randomize=True):
     data_path = os.path.join(os.getcwd(), folder_path)
     model_names = []
     for filename in os.listdir(data_path):
         if "output" not in filename:
             model_names.append(os.path.splitext(filename)[0][:-6])
-    random.shuffle(model_names)
+    if randomize:
+        random.shuffle(model_names)
     return model_names
 
 
