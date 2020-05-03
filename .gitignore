@@ -125,7 +125,7 @@ dmypy.json
 .pyre/
 
 meshes/
-deformed_meshes/
-data/
+deformed_meshes*/
+data*/
 trained_models/
-outputs/
+outputs*/

@@ -12,17 +12,17 @@ import utils
 import deformation
 
 
-def create_data(folder_path='meshes/', nb_of_pointclouds=50, nb_of_points=5000):
+def create_data(folder_path='meshes/', nb_of_pointclouds=50, nb_of_points=5000, sphere_level=4):
     device = torch.device("cuda:0")
     
     data_path = os.path.join(os.getcwd(), folder_path)
-    src_mesh = ico_sphere(4, device)
+    src_mesh = ico_sphere(sphere_level, device)
     
     for filename in os.listdir(data_path):
         print(f"{datetime.now()} Starting:{filename}")
         file_path = os.path.join(data_path, filename)
         cur_mesh = utils.load_mesh(file_path)
-        cur_deform_verts = deformation.get_deform_verts(cur_mesh)
+        cur_deform_verts = deformation.get_deform_verts(cur_mesh, nb_of_points, sphere_level)
         data_verts = np.expand_dims(cur_deform_verts.detach().cpu().numpy(), axis=0)
         data_input = None
         data_output = None
@@ -41,4 +41,4 @@ def create_data(folder_path='meshes/', nb_of_pointclouds=50, nb_of_points=5000):
         final_verts, final_faces = deformed_mesh.get_mesh_verts_faces(0)
         final_obj = os.path.join('deformed_meshes/', f'{os.path.splitext(filename)[0]}_deformed.obj')
         save_obj(final_obj, final_verts, final_faces)
-        print(f"{datetime.now()} Finished:{filename}")
+        print(f"{datetime.now()} Finished:{filename}, Point Cloud Shape:{data_input.shape} Deform Verts Shape:{data_output.shape}")

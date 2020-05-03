@@ -4,15 +4,15 @@ from pytorch3d.ops import sample_points_from_meshes
 from pytorch3d.loss import chamfer_distance, mesh_edge_loss, mesh_laplacian_smoothing, mesh_normal_consistency
 
 
-def get_deform_verts(target_mesh, points_to_sample=5000):
+def get_deform_verts(target_mesh, points_to_sample=5000, sphere_level=4):
     device = torch.device("cuda:0")
     
-    src_mesh = ico_sphere(4, device)
+    src_mesh = ico_sphere(sphere_level, device)
 
     deform_verts = torch.full(src_mesh.verts_packed().shape, 0.0, device=device, requires_grad=True)
 
     learning_rate = 0.01
-    num_iter = 2000
+    num_iter = 500
     w_chamfer = 1.0 
     w_edge = 0.05
     w_normal = 0.0005
