@@ -107,13 +107,14 @@ class PointNetfeat(nn.Module):
 
 # from https://github.com/fxia22/pointnet.pytorch
 class PointNetCls(nn.Module):
-    def __init__(self, k=2562*3, feature_transform=False):
+    def __init__(self, k=2562, feature_transform=False):
         super(PointNetCls, self).__init__()
+        self.k = k
         self.feature_transform = feature_transform
         self.feat = PointNetfeat(global_feat=True, feature_transform=feature_transform)
         self.fc1 = nn.Linear(1024, 512)
         self.fc2 = nn.Linear(512, 256)
-        self.fc3 = nn.Linear(256, k)
+        self.fc3 = nn.Linear(256, self.k*3)
         self.dropout = nn.Dropout(p=0.3)
         self.bn1 = nn.BatchNorm1d(512)
         self.bn2 = nn.BatchNorm1d(256)
@@ -125,4 +126,4 @@ class PointNetCls(nn.Module):
         x = F.relu(self.bn1(self.fc1(x)))
         x = F.relu(self.bn2(self.dropout(self.fc2(x))))
         x = self.fc3(x)
-        return torch.tanh(x).view(batchsize, 2562, 3), trans, trans_feat
+        return torch.tanh(x).view(batchsize, self.k, 3), trans, trans_feat
