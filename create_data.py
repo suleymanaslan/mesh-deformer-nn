@@ -12,7 +12,7 @@ import utils
 import deformation
 
 
-def create_data(folder_path='meshes/', nb_of_pointclouds=50, nb_of_points=5000, sphere_level=4):
+def create_data(folder_path='meshes/', nb_of_pointclouds=50, nb_of_points=5000, sphere_level=4, normalize_data=True):
     device = torch.device("cuda:0")
     
     data_path = os.path.join(os.getcwd(), folder_path)
@@ -28,10 +28,11 @@ def create_data(folder_path='meshes/', nb_of_pointclouds=50, nb_of_points=5000, 
         data_output = None
         for _ in range(nb_of_pointclouds):
             data_a = sample_points_from_meshes(cur_mesh, nb_of_points).squeeze().cpu().numpy()
-            data_a = data_a - np.min(data_a, axis=0)
-            data_a = data_a / np.max(data_a, axis=0)
-            data_a_sort_indices = np.argsort(np.linalg.norm(data_a, axis=1))
-            data_a = data_a[data_a_sort_indices]
+            if normalize_data:
+                data_a = data_a - np.mean(data_a, axis=0)
+                data_a = data_a / np.max(data_a, axis=0)
+                data_a_sort_indices = np.argsort(np.linalg.norm(data_a, axis=1))
+                data_a = data_a[data_a_sort_indices]
             data_a = np.expand_dims(data_a, axis=0)
             data_input = data_a if data_input is None else np.concatenate((data_input, data_a))
             data_output = data_verts if data_output is None else np.concatenate((data_output, data_verts))

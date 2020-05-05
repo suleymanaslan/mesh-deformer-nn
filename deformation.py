@@ -1,4 +1,5 @@
 import torch
+from datetime import datetime
 from pytorch3d.utils import ico_sphere
 from pytorch3d.ops import sample_points_from_meshes
 from pytorch3d.loss import chamfer_distance, mesh_edge_loss, mesh_laplacian_smoothing, mesh_normal_consistency
@@ -36,5 +37,6 @@ def get_deform_verts(target_mesh, points_to_sample=5000, sphere_level=4):
 
         loss.backward()
         optimizer.step()
+    print(f"{datetime.now()} Loss Chamfer:{loss_chamfer * w_chamfer}, Loss Edge:{loss_edge * w_edge}, Loss Normal:{loss_normal * w_normal}, Loss Laplacian:{loss_laplacian * w_laplacian}")
         
     return deform_verts
