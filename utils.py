@@ -1,10 +1,15 @@
 import os
 import random
 import torch
+import imageio
 import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from mpl_toolkits.mplot3d import Axes3D
 from pytorch3d.io import load_obj
 from pytorch3d.structures import Meshes, Textures
 from pytorch3d.renderer import OpenGLPerspectiveCameras, look_at_view_transform, RasterizationSettings, MeshRenderer, MeshRasterizer, BlendParams, PhongShader, PointLights
+from pytorch3d.ops import sample_points_from_meshes
 
 
 def load_mesh(filename):
@@ -80,3 +85,27 @@ def read_data(model_names, folder_path, points_x=5000, points_y=2562):
     test_x = np.reshape(np.array(test_x), (-1, points_x, 3))
     test_y = np.reshape(np.array(test_y), (-1, points_y, 3))
     return training_x, training_y, test_x, test_y
+
+
+def animate_pointcloud(mesh, anim_file, points_to_sample, restore_anim=True, is_mesh=True):
+    if os.path.isfile(anim_file) and restore_anim:
+        return anim_file
+    frames = []
+    for plot_i in range(24):
+        if is_mesh:
+            points = sample_points_from_meshes(mesh, points_to_sample)
+            x, y, z = points.clone().detach().cpu().squeeze().unbind(1)
+        else:
+            x, y, z = mesh.unbind(1)
+        fig = plt.figure(figsize=(5, 5))
+        canvas = FigureCanvas(fig)
+        ax = Axes3D(fig)
+        ax.scatter3D(x, z, -y)
+        ax.view_init(elev=190, azim=360*(plot_i/24))
+        plt.axis('off')
+        plt.close()
+        canvas.draw()
+        s, (width, height) = canvas.print_to_buffer()
+        frames.append(np.frombuffer(s, np.uint8).reshape((height, width, 4)))
+    imageio.mimsave(anim_file, frames, 'GIF', fps=8)
+    return anim_file
